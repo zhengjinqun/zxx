@@ -1,0 +1,26 @@
+{
+  "name": "zxx",
+  "version": "1.0.0",
+  "description": "zxx project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhengjinqun/zxx.git"
+  },
+  "keywords": [
+    "zxx",
+    "sm"
+  ],
+  "author": "zhengjinqun",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zhengjinqun/zxx/issues"
+  },
+  "homepage": "https://github.com/zhengjinqun/zxx#readme",
+  "dependencies": {
+    "mysql": "^2.16.0"
+  }
+}

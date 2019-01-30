@@ -1,5 +1,6 @@
 //vue_app_server 服务器
 const express = require("express");
+const bodyParser = require('body-parser');
 var app = express();
 app.use(express.static("public"));
 app.listen(3000);
@@ -9,6 +10,7 @@ const pool = require("./pool");
 //跨域访问配置
 //1:加载模块cors
 const cors = require("cors");
+app.use(bodyParser.urlencoded({extended:false}));
 //2:配置cors
 app.use(cors({
   origin:["http://127.0.0.1:3244",
@@ -59,13 +61,72 @@ app.get("/details/:pid",(req,res)=>{
     res.send({code:1,data:result});
   })
 })
+//功能二:新闻分页显示
+app.get("/getNews",(req,res)=>{
+  //1:参数       pno 页码;pageSize 页大小
+  var pno = req.query.pno;
+  var pageSize = req.query.pageSize;
+  //1.2:默认值
+  if(!pno){
+    pno = 1;
+  }
+  if(!pageSize){
+    pageSize = 7;
+  }
+  //2:验证正则表达式
+  var reg = /^[0-9]{1,}$/;
+  if(!reg.test(pno)){
+     res.send({code:-1,msg:"页码格式不正确"});
+     return;
+  }
+  if(!reg.test(pageSize)){
+    res.send({code:-2,msg:"页大小格式不正确"});
+    return;
+  }
+  //3:创建sql
+  //  查询总页数
+  var sql = "SELECT count(id) as c FROM zxx_news";
+  var progress = 0; //sql执行进度
+  obj = {code:1};
+  pool.query(sql,(err,result)=>{
+       if(err)throw err;
+       console.log(result[0].c);
+       console.log(result)
+       console.log(pageSize)
+       var pageCount = Math.ceil(result[0].c/pageSize);
+       obj.pageCount = pageCount;
+       console.log( obj.pageCount)
+       console.log(obj)
+       progress += 50;
+       if(progress == 100){
+        res.send(obj);
+       }
+  });
+  //  查询当前页内容
+var sql=" SELECT id,ctime,title,img_url,point";
+    sql +=" FROM zxx_news";
+    sql +=" LIMIT ?,?"
+var offset = parseInt((pno-1)*pageSize);
+    // console.log(offset)
+pageSize = parseInt(pageSize);
+  pool.query(sql,[offset,pageSize],(err,result)=>{
+    if(err)throw err;
+    //console.log(result);
+    obj.data = result;
+    progress+=50;
+    if(progress==100){
+      res.send(obj);
+    }
+  }); 
+})
 
-
-//功能九:用户的注册
-app.get("/register",(req,res)=>{
+//功能三:用户的注册
+app.post("/register",(req,res)=>{
   //1.参数 name,pwd
-  var name = req.query.name;
-  var pwd = req.query.pwd;
+  var name = req.body.name;
+  var pwd = req.body.pwd;
+  console.log(name)
+  console.log(pwd)
   //1.1.验证
   var reg = /^[a-z0-9_]{8,12}$/;
   // console.log(pwd)
@@ -86,7 +147,7 @@ app.get("/register",(req,res)=>{
   //3.json
 })
 
-//功能十:用户名是否存在
+//功能四:用户名是否存在
 app.get("/existsName",(req,res)=>{
   //1:参数
   var name = req.query.name;
@@ -109,11 +170,11 @@ app.get("/existsName",(req,res)=>{
   })    
   //3:json
 });
-//功能十一:用户登陆
-app.get("/login",(req,res)=>{
+//功能五:用户登陆
+app.post("/login",(req,res)=>{
   //1.获取登陆参数
-  var name = req.query.name;
-  var pwd = req.query.pwd;
+  var name = req.body.name;
+  var pwd = req.body.pwd;
   //2.正则
 
   //3.创建sql
@@ -133,8 +194,8 @@ app.get("/login",(req,res)=>{
   //4.如果参数匹配成功将用户id保存session对象
   //5.返回结果
 });
-//功能七:将商品信息添加至购物车
-app.get("/addCart",(req,res)=>{
+//功能六:将商品信息添加至购物车
+/*app.get("/addCart",(req,res)=>{
   //1:参数 uid pid price count
   console.log(req.session)
   console.log(req.session.uid)
@@ -143,9 +204,7 @@ app.get("/addCart",(req,res)=>{
   var price = parseFloat(req.query.price);
   var count = parseInt(req.query.count);
   var title = req.query.title;
-  console.log(uid)
-
-
+  console.log(uid);
   //2:sql  INSERT
   var sql=" INSERT INTO `zxx_cart`(`id`,";
       sql+=" `uid`, `pid`,`title`, `price`,";
@@ -161,7 +220,60 @@ app.get("/addCart",(req,res)=>{
   })
   //3:json {code:1,msg:"添加成功"}
 });
-//功能八:查询商品详细信息
+*/
+//添加商品到购物车
+app.use("/addCart",(req,res)=>{
+  var uid   = req.session.uid;
+  if(!uid){
+    res.send("添加失败");
+    return;
+  }
+  var pid=req.query.pid;
+  var price=req.query.price;
+  var count=parseInt(req.query.count);
+  pool.query("SELECT count as c FROM zxx_cart WHERE pid=? AND uid=?",[pid,uid],(err,result)=>{
+      if(err) throw err;
+      if(result.length>0){
+          var count2=result[0].c+count;
+          pool.query("UPDATE zxx_cart SET count=? WHERE pid=? AND uid=?",[count2,pid,uid],(err,result)=>{
+            if(err) throw err;
+            if (result.affectedRows > 0) {
+              res.send({ code: 1, msg: "添加成功" });
+            }else{
+              res.send({ code: -1, msg: "添加失败" });
+            }
+          })
+      }else{
+          pool.query("INSERT INTO `zxx_cart`(`id`, `uid`,`pid`,`price`,`count`) VALUES(null,?,?,?,?)",[uid,pid,price,count], (err, result)=>{
+            if (err) throw err;
+            if (result.affectedRows > 0) {
+              res.send({ code: 1, msg: "添加成功" });
+            }else{
+              res.send({ code: -1, msg: "添加失败" });
+            }
+        })
+      }
+  })
+})
+
+//功能6.1:将商品信息添加至购物车
+app.get("/update_one",(req,res)=>{
+  //1:参数 uid pid price count
+  var id = parseInt(req.query.id);
+  var count = parseFloat(req.query.count);
+  //2:sql  INSERT
+  var sql=" update zxx_cart set count=? where id=?";
+  pool.query(sql,[count,id],(err,result)=>{
+      if(err)throw err;
+      if(result.affectedRows > 0){
+        res.send({code:1,msg:"修改成功"});
+      }else{
+        res.send({code:-1,msg:"修改失败"});
+      }
+  })
+  //3:json {code:1,msg:"添加成功"}
+});
+//功能七:查询商品详细信息
 app.get("/getProduct",(req,res)=>{
   //1:参数 商品id
   var pid = parseInt(req.query.pid);
@@ -177,7 +289,7 @@ app.get("/getProduct",(req,res)=>{
   });
   //3:json {code:1,data:{}}
 });
-//功能十二:查询购物车中数据
+//功能八:查询购物车中数据
 app.get("/getCartList",(req,res)=>{
   //1.参数
   var uid = req.session.uid;
@@ -190,7 +302,7 @@ app.get("/getCartList",(req,res)=>{
   //3.json
 })
 
-//功能十三:同步购物中商品数量
+//功能九:同步购物中商品数量
 app.get("/updateCart",(req,res)=>{
   //1.参数 id count
   var id = parseInt(req.query.id);
@@ -208,24 +320,21 @@ app.get("/updateCart",(req,res)=>{
   //3.json
 })
 
-
-//小程序 功能十四:九宫格
-app.get("/getNavImages",(req,res)=>{
-	var list2 = [
-		{ id:1, img_url:"http://127.0.0.1:3000/img/icons/grid-01.png",title:"美食"},
-		{ id:2, img_url:"http://127.0.0.1:3000/img/icons/grid-02(1).png",title:"洗澡"},
-		{ id:3, img_url:"http://127.0.0.1:3000/img/icons/grid-03.png",title:"结婚啦" },
-		{ id:4, img_url:"http://127.0.0.1:3000/img/icons/grid-04.png",title:"卡拉OK" },
-		{ id:5, img_url:"http://127.0.0.1:3000/img/icons/grid-05.png",title:"找工作" },
-		{ id:6, img_url:"http://127.0.0.1:3000/img/icons/grid-06.png",title:"辅导班" },
-		{ id:7, img_url:"http://127.0.0.1:3000/img/icons/grid-07.png",title:"汽车保养" },
-		{ id:8, img_url:"http://127.0.0.1:3000/img/icons/grid-08.png", title: "租房" },
-		{ id:9, img_url:"http://127.0.0.1:3000/img/icons/grid-09.png", title: "装修" }
-	];
-	res.send(list2);
+//功能十: 删除购物车
+app.get("/cart_delect",(req,res)=>{
+  var id =parseInt(req.query.id);
+  console.log(id);
+	var sql= "delete from zxx_cart where id=?";
+	pool.query(sql,[id],(err,result)=>{
+		if(err) throw err;
+		if(result.affectedRows>0){
+			res.send({code:1,msg:"删除成功"});
+			console.log(id);
+		}else{
+			res.send({code:-1,msg:"删除失败"});
+		}
+	})
 })
-//小程序 功能十六:小程序美食分页显示
-
 
 /*
 //功能二:用户名是否存在

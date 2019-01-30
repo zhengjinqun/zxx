@@ -7,7 +7,7 @@
 </div>
 <!--图片-->
 <div style="width:141%;">
-       <mt-swipe class="lunbo" :auto="2500">
+       <mt-swipe class="lunbo_1" :auto="2500">
         <mt-swipe-item v-for="item,i in list" :key="i">
             <img :src="item"/>
         </mt-swipe-item>
@@ -46,7 +46,7 @@
 
 <!--商品详情-->
 
-<ul class="">
+<ul class="ul_info">
     <li class="line_decoration">产品详情</li>
     <li>产品参数</li>
     <li>产品评论</li>
@@ -214,6 +214,10 @@ export default {
 }
 </script>
 <style>
+#app{
+    clear:both;
+    position: relative;
+}
 .app-details{
     position:absolute;
 }
@@ -304,11 +308,11 @@ export default {
  #icon-more{margin-right:1rem;}
  .line_height1{margin-right:1rem;}
  /*商品图片 */
-.lunbo img{
+.lunbo_1 img{
     width:100%;
     height:25rem;
 }
-.lunbo{height:25rem;}
+.lunbo_1{height:25rem;}
 /*商品价格*/
 .price{
     width:141%;
@@ -370,7 +374,7 @@ export default {
 color:#000;
 }
 /*商品详细*/
-ul{
+.ul_info{
    
     height:3rem;
     line-height:3rem;
@@ -410,7 +414,7 @@ ul{
    text-decoration:underline;
    float:right;
 }
-ul>.line_decoration{
+ul_info>.line_decoration{
     padding-bottom:1rem;
     color:#16a086;
     border-bottom:2px solid ;

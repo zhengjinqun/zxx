@@ -1,6 +1,6 @@
 <template>
     <div class="app-register">
-                <div class="header">
+                <div class="header_1">
                     <router-link to="/Home"><span class="mui-icon mui-icon-back"></span></router-link>
                     <span class="title">会员注册</span>
                 </div>
@@ -81,9 +81,8 @@
                 }
                 //3发送axios请求、
                 var url = "http://127.0.0.1:3000/register?";
-                    url+= "name="+n;
-                    url+= "&pwd="+p;
-                this.axios.get(url).then(result=>{
+                    console.log(n,p)
+                this.axios.post(url,`name=${n}&pwd=${p}`).then(result=>{
                     Toast(result.data.msg)
                 })
             }
@@ -91,15 +90,15 @@
     }
 </script>
 <style>
-.header{
+.header_1{
         height:3rem;
         background:#16a086;
         margin-bottom:1rem;
-    }
-    .header>a{
-        color:#fff;
-        line-height:3rem;
-    }
+}
+.header_1>a{
+    color:#fff;
+    line-height:3rem;
+}
      .title{
         font-size:22px;
         color:#fff;

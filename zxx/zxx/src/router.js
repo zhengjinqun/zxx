@@ -9,6 +9,7 @@ import shop_cart from './components/tabbar/shop_cart.vue'
 import member from './components/tabbar/member.vue'
 import updated_uname from './components/user/updated_uname.vue'
 import updated_upwd from './components/user/updated_upwd.vue'
+import product from './components/tabbar/product.vue'
 Vue.use(Router)
 export default new Router({
   routes: [
@@ -23,5 +24,6 @@ export default new Router({
     {path:'/member',component:member},
     {path:'/updated_uname',component:updated_uname},
     {path:'/updated_upwd',component:updated_upwd},
+    {path:'/product',component:product},
   ]
 })

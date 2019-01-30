@@ -1,6 +1,6 @@
 <template>
 <div calss="app-member">
-    <div class="header">
+    <div class="header_t">
         <router-link to="/Home"><span class="mui-icon mui-icon-back"></span></router-link>
         <span class="title">会员中心</span>
     </div>
@@ -10,8 +10,9 @@
             <img  style="width:4rem;" src="./img/tx1.png" alt="">
         </div>
     <div class="margin_top">
-        <span class="uname">郑进群</span>
-        <span>普通会员</span>
+        <router-link v-if="sflogin"  to="/login" class="uname">登录</router-link >
+         <span v-else class="uname">{{uname}}<span @click="lougot">退出</span></span>
+        <!--<span>普通会员</span>-->
     </div>
     <!-- 个人资料 -->
     <router-link to="/updated_uname">
@@ -38,24 +39,57 @@
         <span class="logout_dl">退出当前登陆</span>
     </div> 
 </div>
-
+<my-tabbar></my-tabbar>
 </div>
 </template>
 <script>
+import {Toast} from 'mint-ui'
+import tabbar from '../sub/bottom_tabbar.vue'
 export default {
-    data(){
-        return{}
-    }
+   components:{
+        "my-tabbar":tabbar
+    },
+    created(){
+        this.login()
+        console.log(1)
+    },
+methods: {
+    //登陆
+    login(){
+        var name=sessionStorage.getItem("name");
+        if(name==null){
+            this.sflogin=true;
+        }else{
+            console.log(this.uname)
+            this.uname=name;
+            this.sflogin=false;
+            Toast("登陆成功");
+        }
+    },
+    //退出登陆
+    lougot(){
+        sessionStorage.removeItem("name");
+        this.sflogin=true;
+        Toast("退出成功")
+    },
+    
+},
+data(){
+        return{
+            uname:'',
+            sflogin:true
+        }
+    },
 }
 </script>
 <style>
-.header{
+.header_t{
         height:3rem;
         background:#16a086;
         margin-bottom:1rem;
         
     }
-    .header>a{
+    .header_t>a{
         color:#fff;
         line-height:3rem;
     }
@@ -115,6 +149,7 @@ export default {
     margin-left:1rem; 
     height:3rem;
     width:100%;
+    margin-bottom:3rem;
 }
 .logout>a>span{
     color:#333;
@@ -124,5 +159,6 @@ export default {
 .logout>.logout_dl{
     font-size:18px;
     margin-left:0.5rem; 
+ 
 }
 </style>

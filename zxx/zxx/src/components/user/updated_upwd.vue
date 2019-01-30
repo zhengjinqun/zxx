@@ -1,7 +1,7 @@
 <template>
     <div class="app-upwd">
-            <div class="header">
-                    <router-link to="/Home"><span class="mui-icon mui-icon-back"></span></router-link>
+            <div class="header_f">
+                    <router-link to="/member"><span class="mui-icon mui-icon-back"></span></router-link>
                     <span class="title">会员注册</span>
                 </div>
                 <div class="zhanghao">
@@ -31,12 +31,12 @@
     }
 </script>
 <style>
-.header{
+.header_f{
         height:3rem;
         background:#16a086;
         margin-bottom:1rem;
     }
-    .header>a{
+    .header_f>a{
         color:#fff;
         line-height:3rem;
     }

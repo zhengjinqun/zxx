@@ -1,113 +1,108 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
+  <div id="" v-if="list.length">
+			<table class="table_border">
+				<thead>
+					<tr class="tip">
+						<th>全选<input type="checkbox" @click="handleChecked()" v-model="allChecked"/></th>
+						<th>商品编号</th>
+						<th>商品名称</th>
+						<th>商品单价</th>
+						<th>购买数量</th>
+						<th>小计</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="(item,index) in list">
+						<td><input type="checkbox" v-model="item.checked"  name="all"/></td>
+						<td>{{ index + 1}}</td>
+						<td>{{ item.name }}</td>
+						<td>￥{{ item.price }}</td>
+						<td>
+							<button @click="handleReduce(index)" :disabled="item.count===1">-</button>
+							<input type="text" v-model="item.count" readonly="readonly" />
+							<button @click="handleAdd(index)">+</button>
+						</td>
+						<td>￥{{ item.Stotal }}</td>
+						<td>
+							<button @click="handleRemove(index)" type="danger" icon="el-icon-delete" circle></button>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4"></td>
+						<td colspan="3">
+							总价 ：￥
+							<span v-if="displayMoney=true">{{totalPrice}}</span>
+							<span v-else="displayMoney=false">0</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="" v-else>
+			购物车为空
+		</div>
+
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
-    }
-  }
+  data() {
+      
+			return {
+        totalPrice:0,
+				//全选
+				allChecked:false,
+				//总计一栏是否显示的标记
+				displayMoney: false,
+				//  	购物清单
+				list: [{
+					    checked:false,
+						id: 1,
+						name: '发动机',
+						price: 180,
+						count: 1,
+						Stotal: 180
+					},
+					{
+						checked:false,
+						id: 2,
+						name: '燃油机',
+						price: 200,
+						count: 1,
+						Stotal: 200
+					},
+					{
+						checked:false,
+						id: 3,
+						name: '滤清',
+						price: 500,
+						count: 1,
+						Stotal: 500
+					}
+				]
+			}
+ 
+		},
+  methods: {
+    handleChecked: function(item) {
+      console.log(item)
+				//全选
+				if(this.allChecked==false) {
+					for(var i = 0; i < this.list.length; i++) {
+						var item = this.list[i];
+						item.checked = true;
+					}
+				} else {  //取消全选
+					for(var i = 0; i < this.list.length; i++) {
+                        var item = this.list[i];
+						item.checked = false;
+					}
+				}
+				this.allChecked = !this.allChecked;
+			}
+  },
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>

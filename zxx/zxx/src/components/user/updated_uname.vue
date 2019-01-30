@@ -1,7 +1,7 @@
 <template>
         <div class="app-uname">
-                <div class="header">
-                        <router-link to="/Home"><span class="mui-icon mui-icon-back"></span></router-link>
+                <div class="header_z">
+                        <router-link to="/member"><span class="mui-icon mui-icon-back"></span></router-link>
                         <span class="title">个人资料</span>
                     </div>
                     <div class="zhanghao">
@@ -39,12 +39,12 @@
         }
     </script>
     <style>
-    .header{
+    .header_z{
             height:3rem;
             background:#16a086;
             margin-bottom:1rem;
         }
-        .header>a{
+        .header_z>a{
             color:#fff;
             line-height:3rem;
         }

@@ -11,7 +11,7 @@
         </div>
     <div class="margin_top">
         <router-link v-if="sflogin"  to="/login" class="uname">登录</router-link >
-         <span v-else class="uname">{{uname}}<span @click="lougot">退出</span></span>
+         <span v-else class="uname">{{uname}}</span>
         <!--<span>普通会员</span>-->
     </div>
     <!-- 个人资料 -->
@@ -36,7 +36,7 @@
     <!-- 退出登陆 -->
     <div class="logout">
         <a><span class="mui-icon-extra mui-icon-extra-arrowrightcricle"></span></a>
-        <span class="logout_dl">退出当前登陆</span>
+        <span class="logout_dl"  @click="lougot">退出当前登陆</span>
     </div> 
 </div>
 <my-tabbar></my-tabbar>
@@ -69,6 +69,10 @@ methods: {
     //退出登陆
     lougot(){
         sessionStorage.removeItem("name");
+        var url="http://127.0.0.1:3000/logout";
+        this.axios.get(url).then(res=>{
+            console.log(res)
+        })
         this.sflogin=true;
         Toast("退出成功")
     },

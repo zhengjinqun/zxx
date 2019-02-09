@@ -103,7 +103,7 @@ app.get("/getNews",(req,res)=>{
        }
   });
   //  查询当前页内容
-var sql=" SELECT id,ctime,title,img_url,point";
+var sql=" SELECT id,title,img_url";
     sql +=" FROM zxx_news";
     sql +=" LIMIT ?,?"
 var offset = parseInt((pno-1)*pageSize);
@@ -119,7 +119,23 @@ pageSize = parseInt(pageSize);
     }
   }); 
 })
-
+// //功能二.一:判断用户是否登录
+// app.get("/checkuid",(req,res)=>{
+//   var uid=req.session.uid;
+//   pool.query("SELECT name FROM zxx_login WHERE uid=?",[uid],(err,result)=>{
+//      if(err) throw err;
+//      if(result.length>0){
+//        res.send({code:1,data:result[0]})
+//      }else{
+//        res.send("-1")
+//      }
+//   })
+// })
+//功能二.二:查询购物车
+ app.get("/logout",(req,res)=>{
+    req.session.uid=null;
+  res.send({code:1,msg:"退出成功"})
+  })
 //功能三:用户的注册
 app.post("/register",(req,res)=>{
   //1.参数 name,pwd
@@ -182,11 +198,10 @@ app.post("/login",(req,res)=>{
   pool.query(sql,[name,pwd],(err,result)=>{
     if(err) throw err;
     if(result.length == 1){
-      
       req.session.uid = result[0].uid;
       console.log(req.session.uid)
       console.log(req.session)
-      res.send({code:1,msg:"登陆成;功"})
+      res.send({code:1,msg:"登陆成功"})
     }else{
       res.send({code:-1,msg:"用户名或密码有误"})
     }
@@ -230,6 +245,8 @@ app.use("/addCart",(req,res)=>{
   }
   var pid=req.query.pid;
   var price=req.query.price;
+  var title=req.query.title;
+  var isChecked=req.query.isChecked;
   var count=parseInt(req.query.count);
   pool.query("SELECT count as c FROM zxx_cart WHERE pid=? AND uid=?",[pid,uid],(err,result)=>{
       if(err) throw err;
@@ -244,7 +261,7 @@ app.use("/addCart",(req,res)=>{
             }
           })
       }else{
-          pool.query("INSERT INTO `zxx_cart`(`id`, `uid`,`pid`,`price`,`count`) VALUES(null,?,?,?,?)",[uid,pid,price,count], (err, result)=>{
+          pool.query("INSERT INTO `zxx_cart`(`id`, `uid`,`pid`,`title`,`price`,`count`,`isChecked`) VALUES(null,?,?,?,?,?,?)",[uid,pid,title,price,count,isChecked], (err, result)=>{
             if (err) throw err;
             if (result.affectedRows > 0) {
               res.send({ code: 1, msg: "添加成功" });
@@ -282,7 +299,7 @@ app.get("/getProduct",(req,res)=>{
   // var sql =" SELECT `id`, `title`,";
   // sql+="`price`, FROM `zxx_details`";
   // sql+="WHERE pid=?";
-  var sql="SELECT `pid`,`title`,`price` FROM `zxx_details` WHERE pid=?"
+  var sql="SELECT * FROM `zxx_details` WHERE pid=?"
   pool.query(sql,[pid],(err,result)=>{
      if(err)throw err;
      res.send({code:1,data:result[0]})
@@ -293,8 +310,13 @@ app.get("/getProduct",(req,res)=>{
 app.get("/getCartList",(req,res)=>{
   //1.参数
   var uid = req.session.uid;
+  console.log(uid)
   //2.sql
-  var sql = "SELECT p.title,c.count,c.price,c.id FROM zxx_details p,zxx_cart c WHERE p.pid = c.pid AND c.uid = ?";
+  if(!uid){
+    res.send({code:-1,msg:"请登录"})
+    return; 
+  }
+  var sql = "SELECT p.title,c.count,c.price,c.id,c.isChecked FROM zxx_details p,zxx_cart c WHERE p.pid = c.pid AND c.uid = ?";
   pool.query(sql,[uid],(err,result)=>{
     if(err) throw err;
     res.send({code:1,data:result});

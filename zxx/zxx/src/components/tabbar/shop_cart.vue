@@ -9,8 +9,8 @@
         </div>
     </div>
         <!--购物车-->
-        <div class="gwc" v-for="item in list" :key="item.id">
-            <input type="checkbox" style="margin-top:4rem;margin-left:1rem;" v-model="checked">
+        <div class="gwc" v-for="(item,index) in list" :key="index">
+            <input type="checkbox" v-model="item.isChecked"   style="margin-top:4rem;margin-left:1rem;" >
             <div class="image">
                 <img src="./img/3.jpg" style="width:100%;height:100%;" alt="">
             </div>
@@ -50,15 +50,15 @@
     <div style="margin-top:5rem;">
     <div class="bottom_fixed">
         <div style="margin-top: 2rem;float: left;margin-left:0.5rem;">
-        <input type="checkbox" v-model="allChecked" @click="handleChecked()">
+        <input type="checkbox" v-model="AllChecked" @click="checkAll">
         <span style="margin-right:1rem;">全选</span>
         <span style="margin-right:0.2rem;">总计：</span>
         <span style="color:#16a086;">¥</span>
-        <span v-if="displayMoney=true" style="color:#16a086;">{{my_count}}</span>
-        <span v-if="displayMoney=false" style="color:#16a086;">0</span>
+        <span  style="color:#16a086;">{{totalPrice}}</span>
+        <!-- <span v-else style="color:#16a086;">0</span>-->
         </div>
-        <router-link v-if="displayMoney=true" class="jiesuan" to="" style="margin-top:1rem;">结算({{my_count1}})</router-link>
-        <router-link v-if="displayMoney=false" class="jiesuan" to="" style="margin-top:1rem;">结算(0)</router-link>
+        <router-link  class="jiesuan" to="" style="margin-top:1rem;">结算({{getTotal}})</router-link>
+        <!--<router-link v-else class="jiesuan" to="" style="margin-top:1rem;">结算(0)</router-link>-->
     </div>
 </div> 
 </div>
@@ -69,68 +69,71 @@ import {Toast} from 'mint-ui'
 export default {
     data(){
         return{
-            //选中或不选择数组
-            checked:false,
-            //全选
-			allChecked:false,
-			//总计一栏是否显示的标记
-			displayMoney: false,
             list:[],
+            //选中的商品数量
+            // total:0,
+            //商品总价
+            totalPrice:0,
+            //商品总数量
+            totalcount:0,
+            //是否已选中
+            AllChecked:false,  
+            // isChecked:[],    
         }
     },
-//计算属性
-computed: {
-    my_count:function(){
-        //定义一个总数
-        var sum = 0;
-        if(this.allChecked==true){
-        //循环遍历list数组的长度
-            for(var i=0;i<this.list.length;i++){
-                //声明一个变量 存储每个下标
-                var item=this.list[i];
-                console.log(item)
-            //用num 存储拿到每个下标的i 拿出数量乘以价钱 得到总价
-                sum+=item.count*item.price;
-            }
-            return sum;
-        }
-    },
-
-//自定义函数
-my_count1:function(){
-    var sum = 0;
-    if(this.allChecked==true){
-        for(var i=0;i<this.list.length;i++){
-            var item=this.list[i];
-            console.log(item)
-            sum+=item.count;
-        }
-    return sum;
-    }
-},
-},
-created() {
+    created() {
     this.pid = this.$route.params.pid;
     this.chaxun();
 },
+//计算属性
+computed: {
+      //计算
+      getTotal(){
+        //数量
+        let count=0;
+        let check=0;
+        //商品的价格
+        var  totalPrice=0;
+        //拿到数组遍历
+        var  list=this.list;
+        if(!list){
+            return
+        }
+        list.forEach((item,i)=>{
+            if(item.isChecked){
+                count+=item.count;
+                check++;
+                console.log(count);
+                totalPrice += item.count * item.price;
+            }
+        });
+        this.totalPrice = totalPrice;
+        // this.total =count;
+        this.AllChecked = check === this.list.length;
+        console.log(this.AllChecked)
+        return count;
+      },
+},
+
 methods: {
-    handleChecked: function(item) {
-       //全选
-		if(this.allChecked==false) {
-			for(var i = 0; i < this.list.length; i++) {
-				var item = this.list[i];
-                this.checked = true;
-                this.displayMoney=true;
-			}
-		}else{  //取消全选
-			for(var i = 0; i < this.list.length; i++) {
-                var item = this.list[i];
-                this.checked = false;
-                this.displayMoney=false;
-			}
-		}
-			this.allChecked = !this.allChecked;
-  },
+    //全选和反全选
+    checkAll(){
+       let list = this.list;
+       if(!list){
+            return
+        }
+       if(this.AllChecked==false){
+        this.AllChecked=true;
+            list.forEach(item=>{
+                item.isChecked=1;
+            })
+       }else if(this.AllChecked==true){
+        this.AllChecked=false;
+        list.forEach(item=>{
+               item.isChecked=0;
+           })
+        }
+   },
 //购物车加减更新
 add_cart(e){
     var  id = e.target.dataset.id;
@@ -169,8 +172,8 @@ chaxun(){
     var url="http://127.0.0.1:3000/getCartList";
     this.axios.get(url).then(result=>{
         this.list = result.data.data;
-        // console.log(this.list)
     })
+   
 },
 
 //购物车删除

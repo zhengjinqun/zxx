@@ -55,7 +55,7 @@ export default {
             var url = "http://127.0.0.1:3000/login?";
             this.axios.post(url,`name=${n}&pwd=${p}`).then(result=>{
                 if(result.data.code == 1){
-                    var a =sessionStorage.setItem("name",n);
+                    var a = sessionStorage.setItem("name",n);
                         console.log(a)
                         // alert("3秒跳回到首页");
                         // setTimeout(function(){

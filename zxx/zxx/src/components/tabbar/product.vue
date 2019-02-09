@@ -43,7 +43,7 @@ export default {
     methods:{
         //加入购物车
         productCart(){
-            var url
+            // var url
         },
         getMore(){
             //加载下一页

@@ -48,7 +48,7 @@
        
          <a>
          <span class="img_font_size1 mui-icon-extra mui-icon-extra-cart"></span>
-         <span class="color_font"><router-link style="color: #16a086" to="/shop_cart">购物车(0)</router-link>   </span>
+         <span class="color_font"><router-link style="color: #16a086" to="/shop_cart">购物车({{count}})</router-link>   </span>
          </a>
     </div>
     <!--图片-->
@@ -102,10 +102,13 @@ this.login();
 methods:{
 //  退出登陆
  logout(){
-     console.log(1)
-     sessionStorage.removeItem("name");
+     var a =sessionStorage.removeItem("name");
+        console.log(a,1)
      this.sflogin=true;
-     Toast("退出成功")
+      var url="http://127.0.0.1:3000/logout";
+      this.axios.get(url).then(res=>{
+          console.log(res)
+      })
  },
  //登陆用户名
  login(){
@@ -158,6 +161,7 @@ this.list_one = result.data.data;
     return { 
         list:[],
         list_one:[],
+        count:0,
         uname:'',
         sflogin:true
      }

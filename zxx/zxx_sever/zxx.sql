@@ -105,10 +105,11 @@ CREATE TABLE zxx_cart(
   pid INT, 
   title VARCHAR(64),
   price DECIMAL(10,2),
-  count INT
+  count INT,
+  isChecked boolean
 );
-INSERT INTO zxx_cart VALUES(null,1,10,1111,1,1);
-INSERT INTO zxx_cart VALUES(null,2,12,1111,1,1); 
+INSERT INTO zxx_cart VALUES(null,1,10,1111,1,1,1);
+INSERT INTO zxx_cart VALUES(null,2,12,1111,1,1,0); 
 /*
 #创建表 xz_comment 评论表
 CREATE TABLE xz_comment(

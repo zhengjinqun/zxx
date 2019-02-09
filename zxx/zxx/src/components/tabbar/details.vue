@@ -134,6 +134,7 @@ export default {
             details:[],
             price:this.price,
             count:1,
+            isChecked:0,
         }
     },
     //当组件对象创建成功后即可发送ajax请求
@@ -160,13 +161,14 @@ export default {
             var title = this.title;
             var count =this.count;//商品数量
             var price =this.price;//商品价格
+            var isChecked =this.isChecked;//商品价格
             console.log(pid);
             console.log(title);
             console.log(count);
             console.log(price);
             var url = "http://127.0.0.1:3000/addCart";
             this.axios.get(url,{
-                params:{pid:pid,title:title,price:price,count:count}
+                params:{pid:pid,title:title,price:price,count:count,isChecked:isChecked}
             }).then(result=>{
                 if(result.data.code > 0){
                     Toast(result.data.msg);
